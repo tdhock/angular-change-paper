@@ -1,7 +1,7 @@
 library(data.table)
 library(ggplot2)
 data.vec <- c(1, 4)
-N.grid <- 101
+N.grid <- 201
 param.grid <- seq(0, 2*pi, l=N.grid)
 loss.dt.list <- list()
 sin_cos_mat <- function(x){
@@ -26,16 +26,19 @@ for(data.i in seq_along(data.vec)){
 }
 loss.dt <- rbindlist(loss.dt.list)
 min.dt <- loss.dt[
-, .SD[which.max(loss.value)]
+, .SD[loss.value %in% range(loss.value)]
 , by=.(data.val, norm.name, loss.name)]
 gg <- ggplot()+
   facet_grid(norm.name ~ data.val, labeller=label_both, scales="free")+
   geom_vline(aes(
-    xintercept=param.grid, color=loss.name),
+    xintercept=param.grid, color=loss.name, size=loss.name),
     data=min.dt)+
+  scale_size_manual(values=c(
+    angle=2,
+    sin.cos=1)/2)+
   geom_point(aes(
     param.grid, loss.value, color=loss.name),
     data=loss.dt)
-png("figure-loss.png", width=6, height=6, res=100, units="in")
+png("figure-loss.png", width=10, height=6, res=100, units="in")
 print(gg)
 dev.off()
