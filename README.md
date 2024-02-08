@@ -11,3 +11,10 @@ https://www.wolframalpha.com/input?i=a%2Bb*sin%28x%29%2Bc*cos%28x%29%3D0
 [figure-roots-sin-cos.R](figure-roots-sin-cos.R) makes
 
 ![roots of sin cos difference computed via atan](figure-roots-sin-cos.png)
+
+[figure-roots-l1-2d.R](figure-roots-l1-2d.R) makes
+
+![2d l1 angular loss for 2 data points](figure-roots-l1-2d-loss.png)
+
+![2d l1 angular loss difference](figure-roots-l1-2d.png)
+
