@@ -1,4 +1,8 @@
-# angular-change-paper
+# 7 Feb 2024
+
+For functional pruning L2 loss in sin/cos space, we can use this
+formula for finding the intersection of two loss functions
+https://www.wolframalpha.com/input?i=a%2Bb*sin%28x%29%2Bc*cos%28x%29%3D0
 
 [figure-loss.R](figure-loss.R) makes
 
