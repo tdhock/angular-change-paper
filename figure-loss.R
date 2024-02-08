@@ -18,10 +18,10 @@ for(data.i in seq_along(data.vec)){
     norm.fun <- norm.list[[norm.name]]
     sin.cos.loss <- rowSums(norm.fun(abs(
       sin_cos_mat(param.grid)-sin_cos_mat(rep(data.val,N.grid)))))
-    base.dt <- data.table(data.val, param.grid)
+    base.dt <- data.table(data.val, norm.name, param.grid)
     loss.dt.list[[paste(data.i, norm.name)]] <- rbind(
-      data.table(base.dt, norm.name, loss.name="angle", loss.value=norm.fun(angle.dist)),
-      data.table(base.dt, norm.name, loss.name="sin.cos", loss.value=sin.cos.loss))
+      data.table(base.dt, loss.name="angle", loss.value=norm.fun(angle.dist)),
+      data.table(base.dt, loss.name="sin.cos", loss.value=sin.cos.loss))
   }
 }
 loss.dt <- rbindlist(loss.dt.list)
