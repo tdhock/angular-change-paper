@@ -1,3 +1,8 @@
+# 23 Feb 2024
+
+[avocados.py](avocados.py) reads avocados/data_1.pkl etc and saves
+avocados/trajectory1458/25.csv.gz etc.
+
 # 7 Feb 2024
 
 For functional pruning L2 loss in sin/cos space, we can use this
