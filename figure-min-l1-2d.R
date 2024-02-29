@@ -97,15 +97,22 @@ for(polygon.i in 1:nrow(loss.sf.current)){
     c(2*pi, intercept+slope*2*pi)
   ))
   int.feat <- sf::st_intersection(loss.sf.piece$geometry, roots.line)
+  loss.sf.geom <- loss.sf.piece$geometry[[1]]
   if(length(int.feat)){
     print(int.feat)
-    collection <- sf::st_geometrycollection(list(loss.sf.piece$geometry[[1]], int.feat[[1]]))
+    split.collection <- lwgeom::st_split(loss.sf.geom, roots.line)
+    print(split.collection)
+    centroids <- lapply(split.collection, sf::st_centroid)
+    split.and.centroids <- sf::st_geometrycollection(c(split.collection[], centroids))
+    collection <- sf::st_geometrycollection(list(loss.sf.geom, int.feat[[1]]))
     gg <- ggplot()+
-      geom_sf(data=collection)+
+      geom_sf(data=split.and.centroids)+
       coord_sf(xlim=c(0,2*pi),ylim=c(0,2*pi))    
     print(gg)
     browser()
     ## TODO visualize these lines on top of heat map.
+    ##https://stackoverflow.com/questions/63815365/how-can-i-split-clip-a-polygon-by-lines-in-r
+    ##https://r-spatial.github.io/lwgeom/
   }
 }
 
