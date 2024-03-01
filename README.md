@@ -1,3 +1,9 @@
+# 29 Feb 2024
+
+[figure-min-l1-2d.R](figure-min-l1-2d.R) makes
+
+![2D L1 loss for two data points using sf](figure-min-l1-2d.png)
+
 # 23 Feb 2024
 
 [avocados.py](avocados.py) reads avocados/data_1.pkl etc and saves
