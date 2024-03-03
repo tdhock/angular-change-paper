@@ -1,6 +1,6 @@
 library(data.table)
 library(ggplot2)
-N.grid <- 41
+N.grid <- 51
 param.grid <- seq(0, 2*pi, l=N.grid)
 get.loss <- function(data.val, param.val){
   d <- abs(data.val-param.val)
@@ -79,9 +79,22 @@ for(data.i in 1:nrow(data.mat)){
     data.i, data.vals, pair.dt[, loss := loss1+loss2])
 }
 (loss.dt <- rbindlist(loss.dt.list))
+loss.wide <- dcast(
+  loss.dt[, loss.i := paste0("loss.data",data.i)],
+  param1+param2 ~ loss.i,
+  value.var="loss")
 
+s <- function(step, title){
+  data.table(step, title)
+}
+step.info <- rbind(
+  s(1, "loss.data1"),
+  s(2, "min.data1"),
+  s(3, "loss.data2"),
+  s(4, "cost.data2"))
 last.cost.dt.list <- list()
 last.best.dt.list <- list()
+last.tile.dt.list <- list()
 for(penalty in c(0.5, 5)){
   Penalty <- paste0("Penalty=",penalty)
   loss.sf.current <- data.table(
@@ -152,7 +165,7 @@ for(penalty in c(0.5, 5)){
       data=min1.simple)+
     coord_sf(xlim=c(0,2*pi),ylim=c(0,2*pi))
   last.cost.dt.list[[paste(Penalty,"Min1")]] <- data.table(
-    Penalty, step=2, title="Min1", min1.simple)[, polygon.i := .I]
+    Penalty, step=2, min1.simple)[, polygon.i := .I]
   ggplot()+
     geom_tile(aes(
       param1, param2, fill=loss),
@@ -214,41 +227,77 @@ for(penalty in c(0.5, 5)){
       X,Y),
       data=best.vertices)
   last.cost.dt.list[[Penalty]] <- data.table(
-    Penalty, step=4, title="Cost2", cost2.simple)[, polygon.i := .I]
+    Penalty, step=4, cost2.simple)[, polygon.i := .I]
   last.best.dt.list[[Penalty]] <- data.table(
-    Penalty, step=4, title="Cost2", best.vertices)
+    Penalty, step=4, best.vertices)
+  last.tile.dt.list[[Penalty]] <- data.table(Penalty, melt(loss.wide[
+  , min.data1 := pmin(loss.data1, penalty)
+  ][
+  , cost.data2 := min.data1+loss.data2
+  ],
+  measure.vars=step.info$title,
+  variable.name="title",
+  value.name="cost"
+  )[step.info, on="title"])
 }
 addStep <- function(DF){
   out <- data.table(DF)
-  if("data.i" %in% names(out)){
-    out[, `:=`(
-      step=ifelse(data.i==1, 1, 3),
-      title=paste0("Data",data.i)
-    )]
+  if(!"title" %in% names(out)){
+    out <- out[step.info, on="step", nomatch=0L]
   }
   out[, Step := paste("Step", step)]
 }
-last.cost.dt <- addStep(do.call(rbind, lapply(last.cost.dt.list, sf::st_sf)))
+last.cost.dt <- addStep(do.call(
+  rbind, lapply(last.cost.dt.list, sf::st_sf)
+))[, `:=`(
+  vertices = sapply(last.cost.dt$geometry, function(g)length(unlist(g))/2),
+  polygons = sapply(last.cost.dt$geometry, length)
+)][]
+total.dt <- last.cost.dt[, .(
+  unique.parameters=.N,
+  polygons=sum(polygons),
+  vertices=sum(vertices)
+), by=.(Step, title, Penalty)]
 last.best.dt <- addStep(rbindlist(last.best.dt.list))
-last.tile.dt <- addStep(loss.dt)
-last.loss.dt <- addStep(rbindlist(loss.sf.list))
+last.tile.dt <- addStep(rbindlist(last.tile.dt.list))[
+, relative.cost := (cost-min(cost))/(max(cost)-min(cost)), by=.(Step, Penalty)]
+last.loss.dt <- addStep(rbindlist(
+  loss.sf.list
+)[, step := ifelse(data.i==1, 1, 3)])
 gg <- ggplot()+
+  ggtitle("Change-point detection, geodesic loss, data1=(1,3), data2=(2,4)")+
   theme_bw()+
+  scale_color_manual(values=c(
+    "TRUE"="black",
+    "FALSE"="deepskyblue"))+
+  geom_tile(aes(
+    param1, param2, fill=relative.cost),
+    data=last.tile.dt)+
   geom_sf(aes(
     geometry=geometry,
     color=change),
+    fill=NA,
+    ##linewidth=1,
     data=last.cost.dt)+
-  geom_sf_text(aes(
-    geometry=geometry,
-    label=polygon.i),
-    size=2.5,
-    data=last.cost.dt)+
+  ## geom_sf_text(aes(
+  ##   geometry=geometry,
+  ##   label=polygon.i),
+  ##   size=2.5,
+  ##   data=last.cost.dt)+
+  geom_text(aes(
+    0,-0.1,label=sprintf(
+      "%d unique parameters,\n%d polygons, %d vertices",
+      unique.parameters, polygons, vertices)),
+    hjust=0,
+    size=2,
+    vjust=1,
+    data=total.dt)+
+  scale_shape_manual(values=c(min=21))+
   geom_point(aes(
-    X,Y),
-    data=last.best.dt)+
-  geom_tile(aes(
-    param1, param2, fill=loss),
-    data=last.tile.dt)+
+    X,Y, shape=vertex),
+    fill="white",
+    color="grey50",
+    data=last.best.dt[, vertex := "min"])+
   geom_sf(aes(
     geometry=geometry),
     fill=NA,
@@ -258,7 +307,10 @@ gg <- ggplot()+
   scale_x_continuous(
     "Angle parameter 1")+
   scale_y_continuous(
-    "Angle parameter 2")
-png("figure-min-l1-2d.png", width=8, height=4, units="in", res=100)
+    "Angle parameter 2",
+    breaks=seq(0,6,by=1),
+    limits=c(-1, 6.5))
+png("figure-min-l1-2d.png", width=6.5, height=4, units="in", res=300)
 print(gg)
 dev.off()
+
