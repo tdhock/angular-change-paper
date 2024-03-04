@@ -25,6 +25,19 @@ count.vec <- rpois(N, 50)
 for(lambda in c(100, 0.1)){
   fit <- PeakSegOptimal::PeakSegFPOP(count.vec, penalty=lambda)
   fit.dt <- with(fit, data.table(
-    penalty, path=rev(ends.vec), intervals=t(intervals.mat)))
+    lambda, path=rev(ends.vec), intervals=t(intervals.mat)))
   print(fit.dt)
 }
+
+N=10
+count.vec <- as.integer(2^seq(1,N))
+pen.vec <- c(1000000, 0.1)
+for(lambda in pen.vec){
+  fit <- PeakSegOptimal::PeakSegFPOP(count.vec, penalty=lambda)
+  fit.dt <- with(fit, data.table(
+    lambda, path=rev(ends.vec), intervals=t(intervals.mat)))
+  print(fit.dt)
+  rob.fit <- robseg::Rob_seg(count.vec, lambda=lambda, lthreshold=1)
+  print(with(rob.fit, data.table(lambda, t.est, intervals)))
+}
+

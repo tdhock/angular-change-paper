@@ -4,7 +4,7 @@ Modified robseg [figure-robseg.R](figure-robseg.R)
 https://github.com/tdhock/robust-fpop/tree/interval-count shows that
 number of intervals is indeed linear if penalty is large.
 
-```
+```r
       lambda lthreshold lslope intervals  path
        <num>      <num>  <num>     <int> <int>
    1:    100          1      0         3    -1
@@ -90,6 +90,71 @@ number of intervals is indeed linear if penalty is large.
  998:     0.1   997            5            2
  999:     0.1   998            2            3
 1000:     0.1   999            3            3
+```
+
+Below we show that an ever increasing synthetic data set, with large
+penalty, gives linear number of intervals,
+
+```r
+> N=10
+> count.vec <- as.integer(2^seq(1,N))
+> pen.vec <- c(1000000, 0.1)
+> for(lambda in pen.vec){
++ fit <- PeakSegOptimal::PeakSegFPOP(count.vec, penalty=lambda)
++ fit.dt <- with(fit, data.table(
++ lambda, path=rev(ends.vec), intervals=t(intervals.mat)))
++ print(fit.dt)
++ rob.fit <- robseg::Rob_seg(count.vec, lambda=lambda, lthreshold=1)
++ print(with(rob.fit, data.table(lambda, t.est, intervals)))
++ }
+    lambda  path intervals.V1 intervals.V2
+     <num> <int>        <int>        <int>
+ 1:  1e+06    -1            0            1
+ 2:  1e+06    -1            1            1
+ 3:  1e+06    -1            3            1
+ 4:  1e+06    -1            4            1
+ 5:  1e+06    -1            5            1
+ 6:  1e+06    -1            6            1
+ 7:  1e+06    -1            7            1
+ 8:  1e+06    -1            8            1
+ 9:  1e+06    -1            9            1
+10:  1e+06     0            9            1
+    lambda t.est intervals
+     <num> <int>     <int>
+ 1:  1e+06    10         2
+ 2:  1e+06    10         3
+ 3:  1e+06    10         5
+ 4:  1e+06    10         7
+ 5:  1e+06    10         9
+ 6:  1e+06    10        11
+ 7:  1e+06    10        13
+ 8:  1e+06    10        15
+ 9:  1e+06    10        17
+10:  1e+06    10        18
+    lambda  path intervals.V1 intervals.V2
+     <num> <int>        <int>        <int>
+ 1:    0.1    -1            0            1
+ 2:    0.1     0            1            1
+ 3:    0.1     2            2            2
+ 4:    0.1     3            4            2
+ 5:    0.1     4            4            2
+ 6:    0.1     5            4            2
+ 7:    0.1     6            4            2
+ 8:    0.1     7            4            2
+ 9:    0.1     8            4            2
+10:    0.1     9            4            2
+    lambda t.est intervals
+     <num> <int>     <int>
+ 1:    0.1     1         2
+ 2:    0.1     2         4
+ 3:    0.1     3         5
+ 4:    0.1     4         5
+ 5:    0.1     5         5
+ 6:    0.1     6         5
+ 7:    0.1     7         5
+ 8:    0.1     8         5
+ 9:    0.1     9         5
+10:    0.1    10         4
 ```
 
 # 29 Feb 2024
