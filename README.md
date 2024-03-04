@@ -31,6 +31,7 @@ number of intervals is indeed linear if penalty is large.
  998:    0.1          1      0         6   995
  999:    0.1          1      0         7   998
 1000:    0.1          1      0         5   999
+## Above biweight, below L1.
       lambda lthreshold lslope intervals  path
        <num>      <num>  <num>     <int> <int>
    1:    100          0     -1         3    -1
@@ -57,6 +58,38 @@ number of intervals is indeed linear if penalty is large.
  998:    0.1          0     -1         7   997
  999:    0.1          0     -1         7   998
 1000:    0.1          0     -1         7   999
+> for(lambda in c(100, 0.1)){
++ fit <- PeakSegOptimal::PeakSegFPOP(count.vec, penalty=lambda)
++ fit.dt <- with(fit, data.table(
++ penalty, path=rev(ends.vec), intervals=t(intervals.mat)))
++ print(fit.dt)
++ }
+      penalty  path intervals.V1 intervals.V2
+        <num> <int>        <int>        <int>
+   1:     100    -1            0            1
+   2:     100    -1            2            1
+   3:     100    -1            2            1
+   4:     100    -1            2            1
+   5:     100    -1            2            1
+  ---                                        
+ 996:     100    -1            9            7
+ 997:     100    -1           10            7
+ 998:     100    -1           11            7
+ 999:     100    -1           10            7
+1000:     100     0           10            8
+      penalty  path intervals.V1 intervals.V2
+        <num> <int>        <int>        <int>
+   1:     0.1    -1            0            1
+   2:     0.1    -1            2            1
+   3:     0.1    -1            2            3
+   4:     0.1    -1            4            4
+   5:     0.1    -1            4            5
+  ---                                        
+ 996:     0.1   994            2            4
+ 997:     0.1   996            4            4
+ 998:     0.1   997            5            2
+ 999:     0.1   998            2            3
+1000:     0.1   999            3            3
 ```
 
 # 29 Feb 2024
