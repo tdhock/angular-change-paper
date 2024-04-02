@@ -1,3 +1,11 @@
+# 2 Apr 2024
+
+[figure-compare-time-data.R](figure-compare-time-data.R)
+
+https://cloud.r-project.org/web/packages/moveHMM
+
+https://cloud.r-project.org/web/packages/circular
+
 # 3 Mar 2024
 
 Modified robseg [figure-robseg.R](figure-robseg.R)
