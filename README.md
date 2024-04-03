@@ -1,6 +1,12 @@
 # 2 Apr 2024
 
-[figure-compare-time-data.R](figure-compare-time-data.R)
+[figure-compare-time-data.R](figure-compare-time-data.R) makes
+
+![real data timings](figure-compare-time.png)
+
+[figure-compare-time-sim-data.R](figure-compare-time-sim-data.R) makes
+
+![simulated data timings](figure-compare-time-sim.png)
 
 https://cloud.r-project.org/web/packages/moveHMM
 
