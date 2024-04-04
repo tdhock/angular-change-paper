@@ -8,6 +8,8 @@
 
 ![simulated data timings](figure-compare-time-sim.png)
 
+![simulated data timings with pred](figure-compare-time-sim-pred.png)
+
 https://cloud.r-project.org/web/packages/moveHMM
 
 https://cloud.r-project.org/web/packages/circular
