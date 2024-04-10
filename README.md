@@ -1,3 +1,15 @@
+# 10 Apr 2024
+
+[figure-approx-algo-1d.R](figure-approx-algo-1d.R) makes
+
+![approx algo penalty 1](figure-approx-algo-1d-1.png)
+
+![approx algo penalty 100](figure-approx-algo-1d-100.png)
+
+![approx algo penalty 10000](figure-approx-algo-1d-10000.png)
+
+![approx algo three penalty values](figure-approx-algo-1d.png)
+
 # 2 Apr 2024
 
 [figure-compare-time-data.R](figure-compare-time-data.R) makes
