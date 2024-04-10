@@ -4,7 +4,7 @@ data.per.seg <- 10
 set.seed(1)
 angle.vec <- c(
   runif(data.per.seg,-10,10),
-  runif(data.per.seg,180,190),
+  runif(data.per.seg,170,190),
   runif(data.per.seg,-10,10))
 max.angle <- 360
 data.dt <- data.table(
@@ -30,69 +30,34 @@ check_angle <- function(x){
 geodesic_dist <- function(data.vec, param.vec){
   check_angle(data.vec)
   check_angle(param.vec)
-  data.table(data.val=data.vec, param.val=param.vec)[, ifelse({
-    data.val==0
-  }, ifelse(
-    param.val<max.angle/2, param.val,
-    max.angle-param.val
-  ),
-  ifelse({
-    data.val<max.angle/2
-  }, ifelse(
-    param.val<data.val, data.val-param.val,
-    ifelse(
-      param.val<data.val+max.angle/2,
-      param.val-data.val,
-      max.angle+data.val-param.val)
-  ),
-  ifelse({
-    data.val==max.angle/2
-  }, ifelse(
-      param.val<max.angle/2, max.angle/2-param.val,
-      param.val-max.angle/2
-  ), ifelse(
-    param.val<data.val-max.angle/2, param.val+max.angle-data.val,
-    ifelse(
-      param.val<data.val,
-      data.val-param.val,
-      param.val-data.val))))
-  )]
-}
-geodesic_dist <- function(data.vec, param.vec){
-  check_angle(data.vec)
-  check_angle(param.vec)
   d <- abs(data.vec-param.vec)
   ifelse(d>max.angle/2, max.angle-d, d)
 }
 plot(geodesic_dist(300, param) ~ param, param.dt)
-cum.mat <- sapply(param.dt$param, function(param.val){
-  c(0,cumsum(geodesic_dist(data.dt$angle, param.val)))
-})
 
 penalty <- 100
-n.out <- nrow(data.dt)+1
-best.change <- rep(NA,n.out)
-best.cost <- rep(NA,n.out)
+n.out <- nrow(data.dt)
+best.change <- rep(n.out)
+best.cost <- rep(n.out)
 best.cost[1] <- 0
-best.param <- rep(NA,n.out)
+best.param <- rep(n.out)
+cost.model <- rep(0,nrow(param.dt))
+change.model <- rep(1L,nrow(param.dt))
 for(data.t in 1:nrow(data.dt)){
-  last.seg.start <- seq(1, data.t)
-  out.t <- data.t+1
-  total.up.to.t <- cum.mat[out.t,]
-  total.before.start <- t(cum.mat[last.seg.start,,drop=FALSE])
-  last.seg.cost.mat <- total.up.to.t-total.before.start
-  best.param.i <- apply(last.seg.cost.mat, 2, which.min)
-  (best.params <- param.dt$param[best.param.i])
-  last.seg.cost <- apply(last.seg.cost.mat, 2, min)
-  prev.cost <- best.cost[last.seg.start]+penalty
-  total.cost <- prev.cost+last.seg.cost
-  best.start <- which.min(total.cost)
-  best.change[out.t] <- best.start
-  best.cost[out.t] <- total.cost[best.start]
-  best.param[out.t] <- best.params[best.start]
+  loss.vec <- geodesic_dist(data.dt[data.t, angle], param.dt$param)
+  if(data.t>1){
+    cost.of.change <- best.cost[data.t-1]+penalty
+    change.better <- cost.of.change<cost.model
+    change.model[change.better] <- data.t
+    cost.model[change.better] <- cost.of.change
+  }
+  cost.model <- cost.model+loss.vec
+  best.param.i <- which.min(cost.model)
+  best.change[data.t] <- change.model[best.param.i]
+  best.param[data.t] <- param.dt$param[best.param.i]
+  best.cost[data.t] <- cost.model[best.param.i]
 }
-cost.dt <- data.table(best.change, best.cost, best.param)[-1]
-
+(cost.dt <- data.table(best.change, best.cost, best.param))
 ##decoding.
 seg.dt.list <- list()
 last.i <- cost.dt[, .N]
@@ -154,4 +119,6 @@ gg <- ggplot()+
 png("figure-approx-algo-1d.png", 6, 2, units="in", res=200)
 print(gg)
 dev.off()
-
+rbind(
+  check=penalty*(nrow(seg.dt)-1)+residual.dt[, sum(abs(y-yend))],
+  recursion=cost.dt[.N, best.cost])
