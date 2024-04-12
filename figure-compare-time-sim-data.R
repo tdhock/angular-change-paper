@@ -47,7 +47,7 @@ kappa <- c(0.7,1.5)
 mu0 <- c(20,70)
 sigma0 <- c(10,30)
 atime.result <- atime::atime(
-  N=10^seq(1, 1e6, by=0.5),
+  N=as.integer(10^seq(1, 6, by=0.5)),
   setup={
     sim.data <- moveHMM::simData(
       nbAnimals=1,
@@ -75,13 +75,14 @@ atime.result <- atime::atime(
       angleDist="vm",
       angleMean=angleMean)
   },
+  geodesicFPOP=geodesichange::geodesicFPOP_vec(pos.vec, 1),
   grid_APART=APART(pos.vec, log(N), param.grid),
   kmeans_APART={
     km <- kmeans(pos.vec, 2)
     two.params <- as.numeric(km$centers)
     APART(pos.vec, log(N), two.params)
   },
-  result=TRUE,
+  result=FALSE,
   "circular"=circular::change.point(c.vec))
 
 saveRDS(atime.result, "figure-compare-time-sim-data.rds")
