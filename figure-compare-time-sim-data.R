@@ -47,6 +47,7 @@ kappa <- c(0.7,1.5)
 mu0 <- c(20,70)
 sigma0 <- c(10,30)
 atime.result <- atime::atime(
+  verbose=TRUE,
   N=as.integer(10^seq(1, 6, by=0.5)),
   setup={
     sim.data <- moveHMM::simData(
@@ -84,5 +85,5 @@ atime.result <- atime::atime(
   },
   result=FALSE,
   "circular"=circular::change.point(c.vec))
-
+plot(atime.result)
 saveRDS(atime.result, "figure-compare-time-sim-data.rds")
