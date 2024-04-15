@@ -50,6 +50,7 @@ atime.result <- atime::atime(
   verbose=TRUE,
   N=as.integer(10^seq(1, 6, by=0.5)),
   setup={
+    set.seed(1)
     sim.data <- moveHMM::simData(
       nbAnimals=1,
       nbStates=2,
@@ -59,9 +60,10 @@ atime.result <- atime::atime(
       anglePar=c(angleMean,kappa),
       nbCovs=2,
       zeroInflation=FALSE,
-      obsPerAnimal=N+2)[-c(1,N+2),]#rm missing first/last
-    c.vec <- circular::circular(sim.data$angle)
-    pos.vec <- with(sim.data, ifelse(angle<0,angle+2*pi,angle))
+      obsPerAnimal=N)
+    no.na <- sim.data[-c(1,N),]#rm missing first/last
+    c.vec <- circular::circular(no.na$angle)
+    pos.vec <- with(no.na, ifelse(angle<0,angle+2*pi,angle))
   },
   seconds.limit=100,
   ##seconds.limit=0.01,
@@ -76,9 +78,11 @@ atime.result <- atime::atime(
       angleDist="vm",
       angleMean=angleMean)
   },
-  geodesicFPOP=geodesichange::geodesicFPOP_vec(pos.vec, 1),
-  grid_APART=APART(pos.vec, log(N), param.grid),
-  kmeans_APART={
+  geodesicFPOP={
+    geodesichange::geodesicFPOP_vec(pos.vec, 1)
+  },
+  APART_grid=APART(pos.vec, log(N), param.grid),
+  APART_kmeans={
     km <- kmeans(pos.vec, 2)
     two.params <- as.numeric(km$centers)
     APART(pos.vec, log(N), two.params)
