@@ -4,6 +4,10 @@
 
 ![asymptotic two penalties several losses](figure-geodesicFPOP-robseg.png)
 
+[figure-geodesic-penalties.R](figure-geodesic-penalties.R) makes
+
+![asymptotic four penalties for geodesic loss](figure-geodesic-penalties.png)
+
 # 10 Apr 2024
 
 [figure-approx-algo-1d.R](figure-approx-algo-1d.R) makes
