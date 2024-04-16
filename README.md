@@ -1,3 +1,9 @@
+# 16 Apr 2024
+
+[figure-geodesicFPOP-robseg.R](figure-geodesicFPOP-robseg.R) makes
+
+![asymptotic two penalties several losses](figure-geodesicFPOP-robseg.png)
+
 # 10 Apr 2024
 
 [figure-approx-algo-1d.R](figure-approx-algo-1d.R) makes
