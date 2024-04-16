@@ -46,6 +46,12 @@ angleMean <- c(pi,0)
 kappa <- c(0.7,1.5)
 mu0 <- c(20,70)
 sigma0 <- c(10,30)
+expr.list <- atime::atime_grid(
+  list(penalty=c(0.001, 1000)),
+  geodesicFPOP={
+    geodesichange::geodesicFPOP_vec(pos.vec, penalty)
+  },
+  expr.param.sep="_")
 atime.result <- atime::atime(
   verbose=TRUE,
   N=as.integer(10^seq(1, 6, by=0.5)),
@@ -66,7 +72,7 @@ atime.result <- atime::atime(
     pos.vec <- with(no.na, ifelse(angle<0,angle+2*pi,angle))
   },
   seconds.limit=100,
-  ##seconds.limit=0.01,
+  expr.list=expr.list,
   "moveHMM"={
     hmm <- moveHMM::fitHMM(
       data=sim.data,
@@ -77,9 +83,6 @@ atime.result <- atime::atime(
       stepDist="gamma",
       angleDist="vm",
       angleMean=angleMean)
-  },
-  geodesicFPOP={
-    geodesichange::geodesicFPOP_vec(pos.vec, 1)
   },
   APART_grid=APART(pos.vec, log(N), param.grid),
   APART_kmeans={
