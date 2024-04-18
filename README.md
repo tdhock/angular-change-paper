@@ -2,11 +2,12 @@
 
 * time complexity of angular changepoint
   packages. [PNG](figure-compare-time-sim-nopred-nomem.png),
-  [code](figure-compare-time-sim-data.R).
-* time complexity of FPOP with different loss functions. [PNG](figure-geodesicFPOP-robseg-simple.png), [code](figure-geodesicFPOP-robseg.R).
-
-
-
+  [timings code](figure-compare-time-sim-data.R), 
+  [figure code](figure-compare-time-sim.R).
+* time complexity of FPOP with different loss
+  functions. [PNG](figure-geodesicFPOP-robseg-simple.png),
+  [timings code](figure-geodesicFPOP-robseg-data.R),
+  [figure code](figure-geodesicFPOP-robseg.R).
 
 # 16 Apr 2024
 
