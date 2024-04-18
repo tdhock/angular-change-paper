@@ -1,6 +1,18 @@
+# Figures for paper
+
+* time complexity of angular changepoint
+  packages. [PNG](figure-compare-time-sim-nopred-nomem.png),
+  [code](figure-compare-time-sim-data.R).
+* time complexity of FPOP with different loss functions. [PNG](figure-geodesicFPOP-robseg-simple.png), [code](figure-geodesicFPOP-robseg.R).
+
+
+
+
 # 16 Apr 2024
 
 [figure-geodesicFPOP-robseg.R](figure-geodesicFPOP-robseg.R) makes
+
+![asymptotic two penalties several losses](figure-geodesicFPOP-robseg-simple.png)
 
 ![asymptotic two penalties several losses](figure-geodesicFPOP-robseg.png)
 
@@ -27,6 +39,8 @@
 ![real data timings](figure-compare-time.png)
 
 [figure-compare-time-sim-data.R](figure-compare-time-sim-data.R) makes
+
+![simulated data timings](figure-compare-time-sim-nopred-nomem.png)
 
 ![simulated data timings](figure-compare-time-sim.png)
 
