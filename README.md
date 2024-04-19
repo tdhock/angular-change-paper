@@ -9,6 +9,12 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
 
+# 18 Apr 2024
+
+[figure-pointer-moves.R](figure-pointer-moves.R) makes
+
+![pointer moves figure](figure-pointer-moves.png) 
+
 # 16 Apr 2024
 
 [figure-geodesicFPOP-robseg.R](figure-geodesicFPOP-robseg.R) makes
