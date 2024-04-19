@@ -50,7 +50,8 @@ pieces_for_data(5)
 
 grid.dt <- data.table(degrees=seq(0,359))
 data.list <- list(
-  move_before=c(3,103,230,250,200),
+  ##start_zero=c(0,50,5,55,200),#TODO
+  move_before=c(30,103,230,250,200),
   simple=c(270,180,200,0,90))
 loss.dt.list <- list()
 diff.dt.list <- list()
