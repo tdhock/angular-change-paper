@@ -1,12 +1,11 @@
 atime.result <- readRDS("figure-geodesicFPOP-robseg-data.rds")
 library(data.table)
 more.dt <- rbindlist(atime.result$meas$result)
+atime.result$unit.col.vec <- c(seconds="median", "kilobytes", names(more.dt))
 atime.result$measurements <- data.table(
   atime.result$measurements,
   more.dt)
-atime.refs <- atime::references_best(
-  atime.result,
-  more.units=names(more.dt))
+atime.refs <- atime::references_best(atime.result)
 png("figure-geodesicFPOP-robseg.png",width=18,height=8,units="in",res=200)
 plot(atime.refs)
 dev.off()
@@ -50,11 +49,11 @@ lab <- function(x,y,label,hjust,vjust,Unit,penalty){
 pen.meta <- unique(some.meas[,.(penalty,Penalty)])
 lab.dt <- pen.meta[rbind(
   lab(1e4, 10, "O(1) intervals", 0.5, 0,"intervals",0.01),
-  lab(4e4, 1e4, "O(N) intervals\nL1/geodesic/L2rob",0,1,"intervals",1000),
-  lab(1e7, 30, "O(log N) intervals\nL2/Poisson",1,0,"intervals",1000),
+  lab(4e4, 1e4, "O(N) intervals\ngeodesic/L2rob/L1",0,1,"intervals",1000),
+  lab(1e7, 30, "O(log N) intervals\nPoisson/L2",1,0,"intervals",1000),
   lab(1e6, 20, "O(N) time", 0.5,0,"seconds",0.01),
-  lab(5e4, 20, "O(N^2) time\nL1/geodesic/L2rob",1,0,"seconds",1000),
-  lab(2e5, 20, "O(N log N) time\nL2/Poisson", 0, 0, "seconds",1000)),
+  lab(5e4, 20, "O(N^2) time\ngeodesic/L2rob/L1",1,0,"seconds",1000),
+  lab(2e5, 20, "O(N log N) time\nPoisson/L2", 0, 0, "seconds",1000)),
   on="penalty"]
 blank.dt <- data.table(
   x=1e6,
@@ -110,7 +109,7 @@ gg <- ggplot()+
     data=some.meas)+
   facet_grid(Unit ~ Penalty, scales="free")+
   scale_x_log10(
-    "N = Number of simulated data")+
+    "T = Number of simulated data")+
   scale_y_log10("")
 png("figure-geodesicFPOP-robseg-simple.png",width=7,height=3,units="in",res=300)
 print(gg)

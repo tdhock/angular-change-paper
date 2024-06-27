@@ -2,6 +2,7 @@ atime.result <- readRDS("figure-compare-time-sim-data.rds")
 library(atime)
 library(data.table)
 library(ggplot2)
+atime.result$unit.col.vec <- c(seconds="median", "kilobytes")
 atime.refs <- atime::references_best(atime.result)
 atime.pred <- predict(atime.refs, seconds=atime.result$seconds.limit, kilobytes=8e6)
 png("figure-compare-time-sim-pred.png", width=6, height=6, units="in", res=200)
@@ -77,7 +78,7 @@ gg <- ggplot2::ggplot() +
     median, color = expr.name),
     data = atime.result$meas) +
   ggplot2::scale_x_log10(
-    "N = Number of data to segment",
+    "T = Number of data to segment",
     breaks=10^seq(2,6,by=2))+
   coord_cartesian(
     ylim=c(1e-3,1e3),
