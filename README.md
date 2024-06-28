@@ -8,6 +8,12 @@
   functions. [PNG](figure-geodesicFPOP-robseg-simple.png),
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
+  
+# 28 June 2024
+
+[figure-2d-hmm.R](figure-2d-hmm.R) makes
+
+![pointer moves figure](figure-2d-hmm.png) 
 
 # 18 Apr 2024
 
