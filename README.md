@@ -9,6 +9,17 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 3 July 2024
+
+[interesting_signals.py](interesting_signals.py) has indices of real
+data with segments near the boundary.
+
+[figure-2d-hmm-real-interactive.R](figure-2d-hmm-real-interactive.R)
+makes 
+[interactive HMM data viz](https://tdhock.github.io/2024-07-04-HMM-angular-data/)
+
+![screenshot](figure-2d-hmm-real-interactive.png)
+  
 # 28 June 2024
 
 [figure-2d-hmm.R](figure-2d-hmm.R) makes
