@@ -9,6 +9,12 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 19 Sept 2024
+
+[figure-2d-hmm-sim.R](figure-2d-hmm-sim.R) makes
+
+![sim figure](figure-2d-hmm-sim.png)
+  
 # 3 July 2024
 
 [interesting_signals.py](interesting_signals.py) has indices of real

@@ -8,21 +8,26 @@ max.angle <- 2*pi
   runif(N.segs*N.dim, 0, max.angle),
   N.segs, N.dim))
 sim.dt.list <- list()
-mean.dt.list <- list()
+true.mean.dt.list <- list()
 for(seg.i in 1:N.segs){
   for(dim.i in 1:N.dim){
     mean.angle <- mean.mat[seg.i, dim.i]
     circ.vec <- circular::rvonmises(N.per.seg, mean.angle, 1)
     num.vec <- as.numeric(circ.vec)
-    mean.dt.list[[paste(seg.i, dim.i)]] <- data.table(
+    true.mean.dt.list[[paste(seg.i, dim.i)]] <- data.table(
       seg.i, dim.i, mean.angle,
-      start=(seg.i-1)*N.per.seg+1,
-      end=seg.i*N.per.seg)
+      first.i=(seg.i-1)*N.per.seg+1, 
+      last.i=seg.i*N.per.seg, 
+      parameter="true"
+    )[, `:=`(
+      start=first.i-0.5,
+      end=last.i+0.5
+    )]
     sim.dt.list[[paste(seg.i, dim.i)]] <- data.table(
       seg.i, dim.i, i.in.seg=1:N.per.seg, angle=num.vec)
   }
 }
-mean.dt <- rbindlist(mean.dt.list)
+true.mean.dt <- rbindlist(true.mean.dt.list)
 (sim.dt <- rbindlist(
   sim.dt.list
 )[
@@ -40,11 +45,11 @@ ggplot()+
     data=sim.dt)+
   facet_grid(dim.i ~ ., labeller=label_both)+
   geom_segment(aes(
-    start, mean.angle,
+    first.i, mean.angle,
     color=parameter,
-    xend=end, yend=mean.angle),
+    xend=last.i, yend=mean.angle),
     size=2,
-    data=data.table(mean.dt, parameter="true"))+
+    data=true.mean.dt)+
   geom_hline(aes(
     yintercept=param,
     color=parameter),
@@ -53,7 +58,6 @@ ggplot()+
 
 grid.2d <- as.matrix(CJ(dim1=grid.1d, dim2=grid.1d))
 data.2d <- as.matrix(dcast(sim.dt, data.i ~ dim.i, value.var="angle"))[,-1]
-
 check_angle <- function(x){
   stopifnot(0 <= x & x < max.angle)
 }
@@ -105,50 +109,61 @@ APART_decode <- function(DT){
     seg.dt.list[[paste(last.i)]] <- cost.row[, data.table(
       first.i=best.change,
       last.i,
-      param=best.param
+      data.frame(.SD)[grepl("^V", names(.SD))]
     )]
     last.i <- cost.row$best.change-1L
   }>0)TRUE
   setkey(rbindlist(seg.dt.list),first.i)
 }
 
-APART(data.2d, 100, grid.2d)$best.cha
-
-
-plot(num.vec)
-col.i.show <- 1010
-col.i.show <- 0
-real.dt.list <- list()
-data.per.window <- 500
-col.i.vec <- 0:1 + col.i.show
-for(col.i in col.i.vec){
-  col.i.csv.gz <- file.path(
-    "avocados",
-    "trajectory1458",
-    paste0(col.i,".csv.gz"))
-  col.i.dt <- fread(file=col.i.csv.gz, col.names="radians")
-  row.i <- 1:nrow(col.i.dt)
-  in.window <- function(x){
-    ((x-1) %% data.per.window)+1
-  }
-  row.in.window <- in.window(row.i)
-  window <- ((row.i-1) %/% data.per.window) + 1
-  real.dt.list[[paste(col.i)]] <- data.table(
-    col.i, row.i, row.in.window, window, col.i.dt
-  )[, degrees := 360*radians/(2*pi)]
+APART.fit.list <- list()
+APART.seg.list <- list()
+(pen.vec <- c(10,15,100,120,1000))
+for(penalty in pen.vec){
+  afit <- APART(data.2d, penalty, grid.2d)
+  asegs <- APART_decode(afit)[, `:=`(
+    parameter = "APART",
+    seg.i = .I,
+    start=first.i-0.5,
+    end=last.i+0.5
+  )][]
+  APART.fit.list[[paste(penalty)]] <- data.table(
+    penalty, afit)
+  APART.seg.list[[paste(penalty)]] <- data.table(
+    penalty, asegs)
 }
-(real.dt <- rbindlist(real.dt.list)[row.i<=1e5])
-range(real.dt$degrees)
-(summary.dt <- real.dt[, {
-  L <- as.list(quantile(degrees, c(0,0.01,0.25,0.5,0.75,1,0.99)))
-  L$min.row <- min(row.i)
-  L$max.row <- max(row.i)
-  L
-}, by=.(col.i, window)
-][
-, mid.row := (min.row+max.row)/2
-][])
+APART.fit <- rbindlist(APART.fit.list)
+APART.seg <- rbindlist(APART.seg.list)
+dcast(APART.seg, penalty ~ ., length)
 
+tall.segs <- melt(
+  APART.seg.list[["100"]],
+  measure.vars=measure(dim.i=as.integer, pattern="V(.*)"),
+  value.name="mean.angle")
+tall.changes <- tall.segs[first.i>1]
+mean.all <- rbind(tall.segs[,names(true.mean.dt),with=FALSE], true.mean.dt)
+ggplot()+
+  theme_bw()+
+  geom_point(aes(
+    data.i, angle),
+    shape=1,
+    data=sim.dt)+
+  facet_grid(dim.i ~ ., labeller=label_both)+
+  geom_segment(aes(
+    start, mean.angle,
+    color=parameter,
+    size=parameter,
+    xend=end, yend=mean.angle),
+    data=mean.all)+
+  scale_size_manual(values=c(
+    true=0.5,
+    grid=1,
+    APART=2))+
+  geom_vline(aes(
+    xintercept=start,
+    color=parameter),
+    data=tall.changes)
+    
 prob.dt.list <- list()
 lik.dt.list <- list()
 trans.dt.list <- list()
@@ -159,9 +174,7 @@ max.states <- 5
 for(n.states in 2:max.states){
   cat(sprintf("%4d / %4d states\n", n.states, max.states))
   log.A.mat <- log(matrix(1/n.states, n.states, n.states))
-  data.wide <- dcast(real.dt, row.i ~ col.i, value.var="degrees")
-  max.angle <- 360
-  y.mat <- as.matrix(data.wide[,-1])
+  y.mat <- data.2d
   mean.mat <- y.mat[1:n.states,]
   N.data <- nrow(y.mat)
   ## Need to compute emission whenever parameters are updated.
@@ -195,17 +208,16 @@ for(n.states in 2:max.states){
       ## mean below comes from https://en.wikipedia.org/wiki/Circular_mean#Definition
       (log.pi.vec <- log.gamma.mat[1,])
       for(dimension in 1:ncol(mean.mat)){
-        angle.vec <- y.mat[,dimension]
+        radian.vec <- y.mat[,dimension]
         atan2.args <- list()
         trig.list <- list(y=sin,x=cos)
         for(fun.name in names(trig.list)){
           fun <- trig.list[[fun.name]]
-          radian.vec <- 2*pi*angle.vec/max.angle
           atan2.args[[fun.name]] <- colSums(
             fun(radian.vec)*prob.mat
           )/colSums(prob.mat)
         }
-        new.angles <- max.angle*do.call(atan2, atan2.args)/(2*pi)
+        new.angles <- do.call(atan2, atan2.args)
         mean.mat[,dimension] <- new.angles %% max.angle
       }
       log.A.mat <- plotHMM::transition_interface(
@@ -223,7 +235,7 @@ for(n.states in 2:max.states){
     mean.dt.list[[paste(n.states, iteration)]] <- data.table(
       n.states, iteration,
       state.i=as.integer(row(mean.mat)),
-      col.i=col.i.vec[as.integer(col(mean.mat))],
+      col.i=as.integer(col(mean.mat)),
       mean=as.numeric(mean.mat))
     lik.dt.list[[paste(n.states, iteration)]] <- data.table(
       n.states, iteration,
@@ -257,5 +269,7 @@ mean.dt <- do.call(rbind, mean.dt.list)
 lik.dt <- do.call(rbind, lik.dt.list)
 
 save(
-  viterbi.dt, mean.dt, lik.dt, real.dt, summary.dt,
-  file="figure-2d-hmm-real-interactive-data.RData")
+  viterbi.dt, mean.dt, lik.dt,
+  APART.fit, APART.seg,
+  true.mean.dt, sim.dt, grid.1d.dt,
+  file="figure-2d-hmm-sim-data.RData")
