@@ -9,6 +9,16 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 3 oct 2024
+
+[msmbuilder.hmm.VonMisesHMM](http://msmbuilder.org/3.4.0/_hmm/msmbuilder.hmm.VonMisesHMM.html)
+
+```shell
+conda install -c omnia msmbuilder
+```
+
+[source is C++](https://github.com/msmbuilder/msmbuilder/blob/master/msmbuilder/hmm/src/VonMisesHMMFitter.cpp)
+  
 # 19 Sept 2024
 
 [figure-2d-hmm-sim.R](figure-2d-hmm-sim.R) makes
