@@ -18,7 +18,14 @@ conda install -c omnia msmbuilder
 ```
 
 [source is C++](https://github.com/msmbuilder/msmbuilder/blob/master/msmbuilder/hmm/src/VonMisesHMMFitter.cpp)
-  
+
+[figure_msmbuilder_data.py](figure_msmbuilder_data.py) and 
+[figure-2d-hmm-sim-noise-data.R](figure-2d-hmm-sim-noise-data.R) and
+[figure-2d-hmm-sim-noise.R](figure-2d-hmm-sim-noise.R) 
+makes
+
+![screenshot](figure-2d-hmm-sim-noise.png)
+
 # 19 Sept 2024
 
 [figure-2d-hmm-sim.R](figure-2d-hmm-sim.R) makes

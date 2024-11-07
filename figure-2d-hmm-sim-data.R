@@ -268,6 +268,10 @@ viterbi.dt <- do.call(rbind, viterbi.dt.list)
 mean.dt <- do.call(rbind, mean.dt.list)
 lik.dt <- do.call(rbind, lik.dt.list)
 
+dcast(true.mean.dt[, angle := ifelse(
+  mean.angle<pi, mean.angle, mean.angle-2*pi
+)], seg.i ~ dim.i, value.var="angle")
+fwrite(data.2d, "figure-2d-hmm-sim-data.csv")
 save(
   viterbi.dt, mean.dt, lik.dt,
   APART.fit, APART.seg,
