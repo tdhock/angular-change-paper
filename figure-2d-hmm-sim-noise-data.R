@@ -76,6 +76,36 @@ geodesic_L2 <- function(data.vec, param.mat){
   l1.mat <- geodesic_dist(rep.data.mat, param.mat)
   rowSums(l1.mat^2)
 }
+OPART <- function(x.mat, penalty){
+  n.data <- nrow(x.mat)
+  best.change <- rep(NA,n.data)
+  best.cost <- rep(NA,n.data)
+  n.dim <- ncol(x.mat)
+  best.param <- matrix(NA,n.data,n.dim)
+  cum.mat <- rbind(0,apply(sin.cos.mat,2,cumsum))
+  sq.mat <- rbind(0,apply(sin.cos.mat^2,2,cumsum))
+  best.cost <- best.change <- rep(NA,nrow(x.mat))
+  cost <- function(start,end){
+    sum.mat <- matrix(cum.mat[end+1,],length(start),ncol(cum.mat),byrow=TRUE)-cum.mat[start,]
+    N.vec <- end-start+1
+    mean.mat <- sum.mat/N.vec
+    squares <- matrix(sq.mat[end+1,],length(start),ncol(cum.mat),byrow=TRUE)-sq.mat[start,]
+    rowSums(squares-sum.mat^2/N.vec)
+  }
+  best.cost[1] <- cost(1,1)
+  for(up.to in 2:length(best.cost)){
+    last.start <- seq(2, up.to)
+    prev.end <- last.start-1L
+    prev.cost <- best.cost[prev.end]
+    last.cost <- cost(last.start, up.to)
+    total.cost <- prev.cost+last.cost+penalty
+    best.i <- which.min(total.cost) 
+    best.cost[up.to] <- total.cost[best.i]
+    best.change[up.to] <- best.i
+  }
+  best.param <- NA#TODO
+  data.table(best.change, best.cost, best.param)
+}
 APART <- function(angle.mat, penalty, param.mat){
   n.data <- nrow(angle.mat)
   best.change <- rep(NA,n.data)
@@ -126,6 +156,11 @@ for(kappa in kappa.vec){
   data.2d <- as.matrix(
     dcast(select.sim, data.i ~ dim.i, value.var="angle")
   )[,-1]
+  sin.cos.df <- data.frame(sin=sin(data.2d),cos=cos(data.2d))
+  sin.cos.mat <- as.matrix(sin.cos.df)
+  fpop::multiBinSeg(sin.cos.mat, 2)
+  ## should try OPART.
+  OPART(sin.cos.mat)
   unlink("figure-2d-hmm-sim-noise-data*.csv")
   fwrite(data.table(data.2d),"figure-2d-hmm-sim-noise-data.csv")
   py.status <- system("conda activate angular-change-paper && python figure_msmbuilder_data.py figure-2d-hmm-sim-noise-data.csv")
