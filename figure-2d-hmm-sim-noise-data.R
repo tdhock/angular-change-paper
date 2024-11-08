@@ -10,7 +10,7 @@ max.angle <- 2*pi
   N.segs, N.dim))
 sim.dt.list <- list()
 true.mean.dt.list <- list()
-kappa.vec <- c(0.1,1,10)
+kappa.vec <- c(0.5,1,5)
 for(seg.i in 1:N.segs){
   for(dim.i in 1:N.dim){
     mean.angle <- mean.mat[seg.i, dim.i]
@@ -82,29 +82,39 @@ OPART <- function(x.mat, penalty){
   best.cost <- rep(NA,n.data)
   n.dim <- ncol(x.mat)
   best.param <- matrix(NA,n.data,n.dim)
-  cum.mat <- rbind(0,apply(sin.cos.mat,2,cumsum))
-  sq.mat <- rbind(0,apply(sin.cos.mat^2,2,cumsum))
-  best.cost <- best.change <- rep(NA,nrow(x.mat))
-  cost <- function(start,end){
-    sum.mat <- matrix(cum.mat[end+1,],length(start),ncol(cum.mat),byrow=TRUE)-cum.mat[start,]
-    N.vec <- end-start+1
-    mean.mat <- sum.mat/N.vec
-    squares <- matrix(sq.mat[end+1,],length(start),ncol(cum.mat),byrow=TRUE)-sq.mat[start,]
-    rowSums(squares-sum.mat^2/N.vec)
+  cum.mat <- rbind(0,apply(x.mat,2,cumsum))
+  sq.mat <- rbind(0,apply(x.mat^2,2,cumsum))
+  best.cost <- best.change <- best.Nsegs <- rep(NA,nrow(x.mat))
+  for(last.seg.end in seq_along(best.cost)){
+    last.seg.start <- seq(1, last.seg.end)
+    get_sum <- function(m){
+      matrix(
+        m[last.seg.end+1,], last.seg.end, ncol(m), byrow=TRUE
+      )-m[last.seg.start,]
+    }
+    N.vec <- last.seg.end-last.seg.start+1
+    candidate.dt <- data.table(
+      last.seg.start,
+      last.seg.cost=rowSums(get_sum(sq.mat)-get_sum(cum.mat)^2/N.vec)
+    )[
+      last.seg.start==1, `:=`(
+        prev.cost=0,
+        Nsegs=1
+      )
+    ][
+      last.seg.start>1, `:=`(
+        prev.cost=best.cost[last.seg.start-1]+penalty,
+        Nsegs=best.Nsegs[last.seg.start-1]+1L
+      )
+    ][
+    , total.cost := prev.cost + last.seg.cost
+    ][]
+    best.row <- candidate.dt[which.min(total.cost)]
+    best.cost[last.seg.end] <- best.row$total.cost
+    best.Nsegs[last.seg.end] <- best.row$Nsegs
+    best.change[last.seg.end] <- best.row$last.seg.start
   }
-  best.cost[1] <- cost(1,1)
-  for(up.to in 2:length(best.cost)){
-    last.start <- seq(2, up.to)
-    prev.end <- last.start-1L
-    prev.cost <- best.cost[prev.end]
-    last.cost <- cost(last.start, up.to)
-    total.cost <- prev.cost+last.cost+penalty
-    best.i <- which.min(total.cost) 
-    best.cost[up.to] <- total.cost[best.i]
-    best.change[up.to] <- best.i
-  }
-  best.param <- NA#TODO
-  data.table(best.change, best.cost, best.param)
+  data.table(best.change, best.cost, best.Nsegs)
 }
 APART <- function(angle.mat, penalty, param.mat){
   n.data <- nrow(angle.mat)
@@ -144,7 +154,7 @@ APART_decode <- function(DT){
     )]
     last.i <- cost.row$best.change-1L
   }>0)TRUE
-  setkey(rbindlist(seg.dt.list),first.i)
+  setkey(rbindlist(seg.dt.list),first.i)[]
 }
 
 APART.fit.list <- list()
@@ -156,14 +166,46 @@ for(kappa in kappa.vec){
   data.2d <- as.matrix(
     dcast(select.sim, data.i ~ dim.i, value.var="angle")
   )[,-1]
-  sin.cos.df <- data.frame(sin=sin(data.2d),cos=cos(data.2d))
-  sin.cos.mat <- as.matrix(sin.cos.df)
-  fpop::multiBinSeg(sin.cos.mat, 2)
-  ## should try OPART.
-  OPART(sin.cos.mat)
+  sin.cos.dt <- data.table(sin=sin(data.2d),cos=cos(data.2d))
+  sin.cos.mat <- as.matrix(sin.cos.dt)
+  bs.fit <- fpop::multiBinSeg(sin.cos.mat,2)
+  after.change <- sort(bs.fit$t.est)
+  first.i <- c(1,after.change+1)
+  last.i <- c(after.change,nrow(sin.cos.mat))
+  cum.mat <- rbind(0,apply(sin.cos.mat,2,cumsum))
+  sum.mat <- cum.mat[last.i+1,]-cum.mat[first.i,]
+  N.vec <- last.i-first.i+1
+  bs.mean <- melt(data.table(first.i,last.i,sum.mat/N.vec), measure.vars=measure(value.name, dim.i, pattern="(sin|cos)[.]([12])"))[, mean.radians := atan2(sin,cos)][]
+  (bs.wide <- dcast(bs.mean[, V := paste0("V",dim.i)], first.i+last.i ~ V, value.var="mean.radians"))
+  both.seg.list[[paste(kappa,"SinCos")]] <- data.table(
+    kappa,
+    algorithm="SinCosL2BinSeg",
+    parameter.name="num.segs",
+    parameter.value=3,
+    bs.wide,
+    seg.i=seq_along(last.i),
+    start=first.i-0.5,
+    end=last.i+0.5)
+  if(FALSE){
+    ## should try OPART.
+    (ofit <- OPART(sin.cos.mat, 5.5))
+    APART_decode(ofit)
+    solver_OPART <- function(data, penalty){
+      result <- OPART(data, penalty)
+      changes <- result[.N, best.Nsegs]-1
+      list(
+        penmap_loss=result[.N, best.cost]-changes*penalty,
+        penmap_size=changes,
+        details=result)
+    }
+    pmap <- penmap::penmap_create(solver_OPART, sin.cos.mat)
+    penmap::penmap_solve_plot(pmap)
+    pmap$penmap$df()
+    stop(1)
+  }
   unlink("figure-2d-hmm-sim-noise-data*.csv")
   fwrite(data.table(data.2d),"figure-2d-hmm-sim-noise-data.csv")
-  py.status <- system("conda activate angular-change-paper && python figure_msmbuilder_data.py figure-2d-hmm-sim-noise-data.csv")
+  py.status <- system("/home/tdhock/miniconda3/bin/conda run -n angular-change-paper python figure_msmbuilder_data.py figure-2d-hmm-sim-noise-data.csv")
   if(py.status != 0)stop(py.status)
   data.list <- list()
   for(data.type in c("means", "states")){
@@ -204,7 +246,6 @@ for(kappa in kappa.vec){
       parameter.value=penalty,
       asegs)
   }    
-  ## TODO - change 2d data to 4d sin/cos run L2.
   ## - L2 on 2d data? obviously bad.
 }
 APART.fit <- rbindlist(APART.fit.list)
