@@ -16,6 +16,29 @@
 makes
 
 ![screenshot](figure-2d-hmm-sim-noise-many.png)
+
+The figure shows the advantage of the proposed APART algo, with respect to two baselines:
+
+* SinCosL2BinSeg is the classic binary segmentation heuristic on the
+  4d data matrix computed by doing the sin/cos basis expansion on both
+  features. The parameter of the binary segmentation algorithm is the
+  number of changes, which we selected to agree with the true number
+  of changes that were used to generate the data (10, vertical black
+  lines). The figure shows that even with little noise, binary
+  segmentation results in false negatives (two real change-points in
+  black which were not detected), and therefore also false positives
+  (change-points detected where there should be none).
+* VonMisesHMM is a hidden Markov model, with the number of states
+  selected to agree with the true number of states that were used to
+  generate the data (3). While the HMM gives reasonable results when
+  there is low noise (kappa=5), it gives many false positive
+  change-point detections when there is high noise (kappa=1).
+* APART is our proposed Approximate Partitioning algorithm, using
+  K-means as a pre-processing technique (with K=3), and with the
+  penalty chosen in order to recover the correct number of
+  change-points. It is clear that APART recovers a model that is
+  consistent with the true change-points (vertical black lines), for
+  both low and high noise settings.
   
 # 3 oct 2024
 
