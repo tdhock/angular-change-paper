@@ -9,6 +9,14 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 15 Jan 2025
+
+[figure-2d-hmm-sim-noise-data.R](figure-2d-hmm-sim-noise-many-data.R) and
+[figure-2d-hmm-sim-noise.R](figure-2d-hmm-sim-noise-many.R) 
+makes
+
+![screenshot](figure-2d-hmm-sim-noise-many.png)
+  
 # 3 oct 2024
 
 [msmbuilder.hmm.VonMisesHMM](http://msmbuilder.org/3.4.0/_hmm/msmbuilder.hmm.VonMisesHMM.html)
