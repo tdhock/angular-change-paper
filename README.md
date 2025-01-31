@@ -9,6 +9,17 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 31 Jan 2025
+
+[figure-pfpop-atime.R](figure-pfpop-atime.R) makes
+
+![screenshot](figure-pfpop-atime.png)
+
+This figure shows asymptotic properties of FPOP using an alternative
+data structure (map), versus the classic data structure (list). Both
+have O(N) space but with O(N) total moves, we see that the time
+complexity of map is O(N log N), versus O(N^2) for list.
+
 # 15 Jan 2025
 
 [figure-2d-hmm-sim-noise-data.R](figure-2d-hmm-sim-noise-many-data.R) and
