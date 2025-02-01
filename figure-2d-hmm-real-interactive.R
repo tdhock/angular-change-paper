@@ -78,6 +78,10 @@ ggplot()+
     xend=window, yend=`1%`),
     data=summary.dt)
 
+summary.min.max <- melt(summary.dt, measure.vars=c("0%","100%"))
+(summary.1.99 <- melt(summary.dt, measure.vars=list(
+  quartile=c("25%","75%"),
+  extreme=c("1%","99%"))))
 viz <- animint(
   title="Hidden Markov Model for 2d angular data",
   source="https://github.com/tdhock/angular-change-paper/blob/main/figure-2d-hmm-real-interactive.R",
@@ -98,37 +102,32 @@ viz <- animint(
     geom_segment(aes(
       mid.row, `25%`,
       xend=mid.row, yend=`75%`),
+      help="Black segments show 25%-75% quantile range of data in window.",
       data=summary.dt)+
     geom_point(aes(
       mid.row, `50%`),
       fill=NA,
+      help="Blue dots show median of data in window.",
       color="blue",
       data=summary.dt)+
     geom_point(aes(
-      mid.row, `0%`),
+      mid.row, value),
       fill="white",
-      data=summary.dt)+
-    geom_point(aes(
-      mid.row, `100%`),
-      fill="white",
-      data=summary.dt)+
+      help="Black dots show min/max of data in window.",
+      data=summary.min.max)+
     geom_segment(aes(
-      mid.row, `75%`,
-      xend=mid.row, yend=`99%`),
+      mid.row, quartile,
+      xend=mid.row, yend=extreme),
+      help="Grey segments show quantiles 1%-25% and 75%-99% of data in window.",
       color="grey50",
       size=1,
-      data=summary.dt)+
-    geom_segment(aes(
-      mid.row, `25%`,
-      xend=mid.row, yend=`1%`),
-      color="grey50",
-      size=1,
-      data=summary.dt)+
+      data=summary.1.99)+
     geom_tallrect(aes(
       xmin=min.row, xmax=max.row),
       fill="black",
       alpha=0.5,
       clickSelects="window",
+      help="One rectangle per window.",
       data=summary.dt),
   zoom=ggplot()+
     ggtitle("Zoom to data in selected window")+
@@ -145,6 +144,7 @@ viz <- animint(
     geom_segment(aes(
       start.in.window, mean,
       xend=end.in.window, yend=mean),
+      help="Red segments represent most likely mean parameter of Hidden Markov Model.",
       data=seg.overlaps,
       showSelected="window",
       color="red")+
@@ -152,8 +152,10 @@ viz <- animint(
       row.in.window, degrees),
       fill=NA,
       showSelected="window",
+      help="One dot drawn for each data point.",
       data=real.dt)+
-    facet_grid(col.i ~ ., labeller=label_both)
+    facet_grid(col.i ~ ., labeller=label_both),
+  video="https://vimeo.com/1052600378"
 )
 viz
 if(FALSE){
