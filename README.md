@@ -9,16 +9,46 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 3 Feb 2025
+
+[figure-pfpop-worst-case.R](figure-pfpop-worst-case.R) makes
+
+![screenshot](figure-pfpop-worst-case-typical.png)
+
+The figure above shows what would be probably a "typical" run of the
+FPOP algorithm with infinite penalty, using the map data structure, and a constant number of
+pointer moves per iteration. We see a single minimum between 0 and 90,
+which the constant number of pointer moves is capable of tracking.
+
+![screenshot](figure-pfpop-worst-case.png)
+
+The figure above shows a pathological data set for the FPOP algorithm
+with infinite penalty, using the map data structure, and a constant
+number of pointer moves per iteration. We see that the min/max is not
+correct for iterations 2 and 4, because the constant number of pointer
+moves keeps the pointer in a local min/max, but there is a global
+min/max which would require more pointer moves.
+
 # 31 Jan 2025
 
 [figure-pfpop-atime.R](figure-pfpop-atime.R) makes
 
 ![screenshot](figure-pfpop-atime.png)
 
-This figure shows asymptotic properties of FPOP using an alternative
-data structure (map), versus the classic data structure (list). Both
-have O(N) space but with O(N) total moves, we see that the time
-complexity of map is O(N log N), versus O(N^2) for list.
+The figure above shows asymptotic properties of FPOP using infinite
+penalty and an alternative data structure (map), with O(1) pointer
+moves per iteration, versus the classic data structure (list), with
+O(I) operations per iteration, where I is the number of intervals used
+to represent the cost function. Both have O(N) space but with O(N)
+total moves, we see that the time complexity of map is O(N log N),
+versus O(N^2) for list.
+
+![screenshot](figure-pfpop-atime-compare.png)
+
+The figure above shows that list sometimes has smaller cost values
+than map. This implies that there are some data sets for which a
+constant number of pointer moves is not sufficient to find the global
+minimum.
 
 # 15 Jan 2025
 

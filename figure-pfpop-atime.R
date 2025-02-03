@@ -20,7 +20,12 @@ map_list_atime <- atime::atime(
   seconds.limit=0.1,
   result=TRUE
 )
-plot(map_list_atime)
+
+png("figure-pfpop-atime-compare.png", width=4, height=4, units="in", res=200)
+gg <- plot(map_list_atime)
+print(gg)
+dev.off()
+
 
 library(data.table)
 dcast(
@@ -32,5 +37,6 @@ dcast(
 map_list_refs <- atime::references_best(map_list_atime)
 
 png("figure-pfpop-atime.png", width=5, height=6, units="in", res=200)
-plot(map_list_refs)
+gg <- plot(map_list_refs)
+print(gg)
 dev.off()
