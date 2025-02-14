@@ -41,14 +41,17 @@ moves per iteration, versus the classic data structure (list), with
 O(I) operations per iteration, where I is the number of intervals used
 to represent the cost function. Both have O(N) space but with O(N)
 total moves, we see that the time complexity of map is O(N log N),
-versus O(N^2) for list.
+versus O(N^2) for list. (in the best case, worst case both are quadratic)
 
 ![screenshot](figure-pfpop-atime-compare.png)
 
-The figure above shows that list sometimes has smaller cost values
-than map. This implies that there are some data sets for which a
-constant number of pointer moves is not sufficient to find the global
-minimum.
+The figure above shows that
+
+* cost: list has same cost values as map in all cases.
+* kilobytes: map takes a constant factor more memory than list.
+* moves: linear in best case, quadratic in worst case.
+* pointers: constant in best case, linear in worst case.
+* seconds: map best case is log-linear, others are quadratic.
 
 # 15 Jan 2025
 

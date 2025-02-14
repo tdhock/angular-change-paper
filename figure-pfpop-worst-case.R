@@ -222,10 +222,16 @@ initial.vec <- c(270, 290, 300, 280)
 plot_total(initial.vec)
 plot_new(initial.vec, seq(0,315, by=45))
 
-## diff=280, keep local min??
-initial.vec <- c(270, 310)
+initial.vec <- c(200, 310)
 plot_total(initial.vec)
-plot_new(initial.vec, c(90, 95,105,115, 285))
+plot_new(initial.vec, c(90,180,270,340))
+
+initial.vec <- c(200, 310, 90)
+plot_total(initial.vec)
+plot_new(initial.vec, c(80, 255, 300))
+
+initial.vec <- c(200, 310, 90, 255, 240)
+plot_total(initial.vec)
 
 initial.vec <- c(270, 310, 50)
 plot_total(initial.vec)
@@ -233,4 +239,8 @@ plot_new(initial.vec, c(90,95))
 
 ## something like the worst case?
 plot_total(c(10, 200, 40, 230, 80, 270))
+
+plot_total(c(10, 200, 40, 230, 35, 270))
+
+plot_total(c(10, 100, 200, 250))
 
