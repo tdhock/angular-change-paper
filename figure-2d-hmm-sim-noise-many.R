@@ -20,16 +20,16 @@ sim.show <- sim.dt[
   kappa %in% show.kappa
 ]
 true.dt <- data.table(index=true.change.vec)
-algo <- function(algorithm, short, color, size){
-  data.table(algorithm, short, color, size)
+algo <- function(algorithm, Algorithm, color, size){
+  data.table(algorithm, Algorithm, color, size)
 }
 algo.dt <- rbind(
-  algo("LR","LR","00b50d",1),
+  ##algo("LR","LR","00b50d",1),
   algo("APART", "APART", "4562b8", 1),
   algo("SinCosL2BinSeg", "BINSEG", "fa9919", 3),
   algo("VonMisesHMM", "HMM", "d6001f", 2))
-algo.colors <- algo.dt[, structure(paste0("#",color), names=short)]
-algo.sizes <- algo.dt[, structure(size, names=short)]
+algo.colors <- algo.dt[, structure(paste0("#",color), names=Algorithm)]
+algo.sizes <- algo.dt[, structure(size, names=Algorithm)]
 both.disp <- both.long[algo.dt, on="algorithm"][order(-size)]
 gg <- ggplot()+
   theme_bw()+
@@ -45,8 +45,8 @@ gg <- ggplot()+
   facet_grid(feature ~ kappa, labeller=label_both)+
   geom_segment(aes(
     start, mean.radians,
-    color=short,
-    size=short,
+    color=Algorithm,
+    size=Algorithm,
     xend=end,
     yend=mean.radians),
     data=both.disp)+
