@@ -19,7 +19,9 @@ N.true.changes <- sum(is.true.change)
 N.true.segs <- N.true.changes+1
 kappa.vec <- c(
   ##0.5,
-  1, 2, 5)
+  1,
+  ##2,
+  5)
 for(seg.i in 1:N.segs){
   seg.mean.index <- seg.ord.vec[seg.i]
   seg.mean.vec <- mean.mat[seg.mean.index,]
