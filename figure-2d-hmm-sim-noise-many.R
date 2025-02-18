@@ -53,7 +53,8 @@ gg <- ggplot()+
   scale_color_manual(values=algo.colors)+
   scale_size_manual(values=algo.sizes)+
   scale_x_continuous(
-    "Index in data sequence")+
+    "Index in data sequence",
+    breaks=c(1,100,200,300,360))+
   scale_y_continuous(
     "Angle (radians)")
 png("figure-2d-hmm-sim-noise-many.png", width=8, height=3, units="in", res=200)
