@@ -9,6 +9,47 @@
   [timings code](figure-geodesicFPOP-robseg-data.R),
   [figure code](figure-geodesicFPOP-robseg.R).
   
+# 20 Feb 2025
+
+Some example loss functions that are created using only the addition
+operation, using the L1 geodesic loss (equivalent to FPOP with
+infinite penalty). 
+
+[figure-pfpop-add-operations.R](figure-pfpop-add-operations.R) makes
+
+Below we see the best case time complexity, when all data are in a
+single tight cluster, there are only two clusters (independent of
+number of data points), so each update is a constant time operation,
+log-linear time overall in the number of data. Log factor comes from
+inserting a new breakpoint into the C++ STL map, which is a log time
+operation. Each "cluster" of positive/negative changes in slope is
+visually represented by a grey and violet rectangle, and each
+iteration of the algorithm is linear in the number of such
+clusters. (positive changes for locally convex regions, negative
+changes for locally concave)
+  
+![screenshot](figure-pfpop-add-operations-best.png)
+
+Below shows a data set that explains worst case time complexity:
+number of clusters is linear in the number of data points, so
+quadratic time overall.
+
+![screenshot](figure-pfpop-add-operations-worst.png)
+
+Below shows a typical data set, with three tight clusters of data
+values, resulting in six clusters of positive/negative breakpoints in
+loss slope. We see how the global min starts on the left, moves to the
+middle, and then the right.
+
+![screenshot](figure-pfpop-add-operations-typical.png)
+
+Below we see an example of clusters of breakpoints which are not part
+of a local optimum, at the last iteration. Locally concave or convex
+regions can be found in areas of the function that are strictly
+increasing or decreasing.
+
+![screenshot](figure-pfpop-add-operations-critx.png)
+
 # 3 Feb 2025
 
 [figure-pfpop-worst-case.R](figure-pfpop-worst-case.R) makes
